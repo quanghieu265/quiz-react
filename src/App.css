@@ -1,12 +1,16 @@
 .container{
+  width: 100vw;
+  height: 100vh;
+}
+.content{
   max-width: 1440px;
   position: absolute;
   left: 50%;
   top: 50%;
   transform: translate(-50%,-50%);
   text-align: center;
-  background-color: black;
-  color:white
+  font-size: 20px;
+
 }
 
 /* Home page */
@@ -36,10 +40,27 @@
 .high-scores{
   background-color:yellow
 }
+.setting{
+  background-color:grey
+}
+.setting-page{
+  display:flex;
+  gap: 28px;
+  font-size:32px
+}
+table{
+  width: 100%;
+  font-size: 32px;
+  border-spacing: 80px 24px;
+}
+
+input[type=checkbox] {
+  transform: scale(2);
+}
 
 /* Quiz */
 .quiz{
-  color:white;
+
   display:flex;
   flex-direction:column;
   gap: 20px;
@@ -79,6 +100,7 @@
   background-color:red;
   pointer-events: none;
 }
+.disable-click{pointer-events: none}
 
 /* End game */
 .end-game,.form-end{

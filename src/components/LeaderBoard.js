@@ -7,12 +7,17 @@ function LeaderBoard(props){
     }
 
     let leaderboard =localStorage.getItem("leaderboard") ? JSON.parse(localStorage.getItem("leaderboard")) : "";
-    let userScore=leaderboard.map((item,index)=>{
+    let userScore=""
+    if(leaderboard==="") {
+        userScore=<p> Nothing to record, play Quiz and save your score  </p>
+    }else{
+        userScore=leaderboard.map((item,index)=>{
+            return(
+                <p key={index}> {Object.keys(item)[0]} - {item[Object.keys(item)[0]]} </p>
+            )
+        })
+    }
 
-        return(
-            <p key={index}> {Object.keys(item)[0]} - {item[Object.keys(item)[0]]} </p>
-        )
-    })
     return(
         <div className="leader-board">
             <p>Leaderboard</p>

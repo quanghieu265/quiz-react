@@ -1,55 +1,65 @@
 
-import { useState, useEffect } from "react"
-
-
-let QUIZ_CASE = [
-    {
-        id: 1,
-        question: "Nhà Thanh có ao bèo 1.000m2, ngày hôm sau số lượng bèo sẽ nở gấp đôi ngày hôm trước, đến ngày thứ 18 thì bèo đã nở được nửa ao. Vậy đến ngày thứ bao nhiêu thì bèo sẽ nở đầy ao?",
-        choices: ["Ngày thứ 1", "Ngày thứ 19", "Ngày thứ 36", "Ngày thứ 42"],
-        answer: "Ngày thứ 19"
-    },
-    {
-        id: 2,
-        question: "Minh 4 tuổi, tuổi anh Minh gấp 3 lần tuổi Minh. Khi anh Minh bao nhiêu tuổi thì tuổi anh Minh chỉ còn gấp đôi tuổi Minh? ",
-        choices: ["20", "18", "14", "16"],
-        answer: "18"
-    },
-    {
-        id: 3,
-        question: "Tiền thuê 1 chỗ đậu xe trong gara là 10 đôla/tuần hoặc 30 đôla/tháng. Một người có thể tiết kiệm được bao nhiêu tiền trong 1 năm nếu thuê theo tháng?",
-        choices: ["140", "160", "240", "260"],
-        answer: "160"
+import { useState, useEffect, useRef } from "react"
+    let QUIZ_CASE = [
+        {
+            id: 1,
+            question: "Nhà Thanh có ao bèo 1.000m2, ngày hôm sau số lượng bèo sẽ nở gấp đôi ngày hôm trước, đến ngày thứ 18 thì bèo đã nở được nửa ao. Vậy đến ngày thứ bao nhiêu thì bèo sẽ nở đầy ao?",
+            choices: ["Ngày thứ 1", "Ngày thứ 19", "Ngày thứ 36", "Ngày thứ 42"],
+            answer: "Ngày thứ 19"
+        },
+        {
+            id: 2,
+            question: "Minh 4 tuổi, tuổi anh Minh gấp 3 lần tuổi Minh. Khi anh Minh bao nhiêu tuổi thì tuổi anh Minh chỉ còn gấp đôi tuổi Minh? ",
+            choices: ["20", "18", "14", "16"],
+            answer: "18"
+        },
+        {
+            id: 3,
+            question: "Tiền thuê 1 chỗ đậu xe trong gara là 10 đôla/tuần hoặc 30 đôla/tháng. Một người có thể tiết kiệm được bao nhiêu tiền trong 1 năm nếu thuê theo tháng?",
+            choices: ["140", "160", "240", "260"],
+            answer: "160"
+        }
+    ]
+    function shuffleArray(array) {
+        let test=array
+        for (let i = test.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [test[i], test[j]] = [test[j], test[i]];
+        }
+        return test;    
     }
-]
-
-let quiz_counter = 1;
-let score = 0;
-let current_quest = 0
+    
 function Quiz(props) {
-    const [quizCase, setQuizCase] = useState(QUIZ_CASE[current_quest])
+    let quiz_counter = useRef(1)
+    let current_quest = useRef(0)
+    let score=useRef(0)
+
+    const [quizCase, setQuizCase] = useState("")
     const [timeCount, setTimeCount] = useState("")
     const [choiceIndex, setChoiceIndex] = useState("")
+    const [choiceAnswer, setChoiceAnswer] = useState("")
+
     // function
     let onSelect = (index) => {
+        setChoiceIndex(index)
+        setChoiceAnswer(quizCase.answer)
         if (quizCase.choices[index] === quizCase.answer) {
-            setChoiceIndex(quizCase.answer)
-            score += 100;
-            quiz_counter += 1;
-            current_quest += 1
+            score.current  += 100;
             setTimeout(function () {
                 setChoiceIndex("")
-                setQuizCase(QUIZ_CASE[current_quest])
-
+                setChoiceAnswer("")
+                quiz_counter.current  += 1;
+                current_quest.current  += 1
+                setQuizCase(QUIZ_CASE[current_quest.current])
             }, 1000);
 
         } else {
-            setChoiceIndex(quizCase.answer)
-            quiz_counter += 1;
-            current_quest += 1
             setTimeout(function () {
                 setChoiceIndex("")
-                setQuizCase(QUIZ_CASE[current_quest])
+                setChoiceAnswer("")
+                quiz_counter.current  += 1;
+                current_quest.current  += 1
+                setQuizCase(QUIZ_CASE[current_quest.current ])
 
             }, 1000);
 
@@ -62,18 +72,23 @@ function Quiz(props) {
             endgame: true,
             quiz: false,
         })
-        props.result(score)
+        props.result(score.current )
 
     }
 
 
     // useEffect
+    useEffect(()=>{
+        shuffleArray(QUIZ_CASE);
+        setQuizCase(QUIZ_CASE[current_quest.current])
+    },[])
+
     useEffect(() => {
         if (quizCase === undefined) {
             onDone();
-            score = 0;
-            quiz_counter = 1;
-            current_quest = 0
+            score.current= 0;
+            quiz_counter.current  = 1;
+            current_quest.current  = 0
         }
     })
 
@@ -96,9 +111,9 @@ function Quiz(props) {
 
     useEffect(() => {
         if (timeCount === 0) {
-            quiz_counter += 1;
-            current_quest += 1
-            setQuizCase(QUIZ_CASE[current_quest])
+            quiz_counter.current  += 1;
+            current_quest.current  += 1
+            setQuizCase(QUIZ_CASE[current_quest.current ])
         }
     }, [timeCount])
 
@@ -115,8 +130,14 @@ function Quiz(props) {
         question = quizCase.question
         choices = quizCase.choices.map((item, index) => {
             let order = ["A", "B", "C", "D"]
+
             return (
-                <div className={`choice ${choiceIndex && quizCase.choices[index] === choiceIndex ? "right-answer" : ""} ${choiceIndex && quizCase.choices[index] !== choiceIndex ? "wrong-answer" : ""}`} key={index} onClick={() => onSelect(index)}>
+                <div className={`choice
+                ${choiceIndex !== index && choiceIndex !==""? "disable-click" : ""}
+                 ${choiceIndex === index && quizCase.choices[index] === choiceAnswer ? "right-answer" : ""}
+                 ${choiceIndex === index && quizCase.choices[index] !== choiceAnswer ? "wrong-answer" : ""}
+                 `}
+                  key={index} onClick={() => onSelect(index)}>
                     <span>{order[index]}</span>
                     <span>{item}</span>
                 </div>
@@ -129,18 +150,18 @@ function Quiz(props) {
         <div className="quiz">
             <div className="info-quiz">
                 <div className="info-question">
-                    <p>Question {quiz_counter} of {quiz_length}</p>
+                    <p>Question {quiz_counter.current } of {quiz_length}</p>
                     <div className="progress">
-                        <div className="progress-bar" style={{ width: `${quiz_counter / quiz_length * 100}%` }}></div>
+                        <div className="progress-bar" style={{ width: `${quiz_counter.current  / quiz_length * 100}%` }}></div>
                     </div>
                 </div>
                 <div className="info-time">
-                    <p>Time Left</p>
+                    <p>Time</p>
                     <p>{timeCount}s</p>
                 </div>
                 <div className="info-score">
                     <p>Score</p>
-                    <p>{score}</p>
+                    <p>{score.current }</p>
                 </div>
             </div>
             <div className="question">
